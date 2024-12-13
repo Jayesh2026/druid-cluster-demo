@@ -50,6 +50,7 @@ services:
       environment:
         - ZOOKEEPER_CONNECT=zookeeper:2181
         - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+
       networks:
         - druid_network
 
