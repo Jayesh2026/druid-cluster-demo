@@ -43,21 +43,19 @@ services:
       - druid_network
 
   kafka:
-      image: quay.io/debezium/kafka:latest
-      container_name: kafka
-      depends_on:
-        - zookeeper
-      ports:
-        - "9092:9092"
-      environment:
-        # - KAFKA_BROKER_ID=1
-        - ZOOKEEPER_CONNECT=zookeeper:2181
-        - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092 #,PLAINTEXT_HOST://localhost:9092
-        # - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-        # - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
-        # - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
-      networks:
-        - druid_network
+    image: quay.io/debezium/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+      - KAFKA_LISTENER_NAME=PLAINTEXT
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 
+      - KAFKA_LISTENER_SECURITY_PROTOCOL=PLAINTEXT
+    networks:
+      - druid_network
 
   kafka-connect:
     image: quay.io/debezium/connect:latest
