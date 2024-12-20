@@ -1,6 +1,6 @@
 {
-    "name": "postgresql-data-source",
-    "config": {
+  "name": "postgresql-data-source",
+  "config": {
       "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
       "tasks.max": "1",
       "database.server.name": "dbserver1",
@@ -9,14 +9,18 @@
       "database.user": "postgres",
       "database.password": "root",
       "database.dbname": "demo-druid",
-      "database.include.list": "demo-druid", 
-      "plugin.name": "pgoutput", 
+      "schema.include.list": "public",
+      "plugin.name": "pgoutput",
       "table.include.list": "public.employee",
-      "topic.prefix": "dbserver1", 
+      "topic.prefix": "dbserver1",
       "snapshot.mode": "initial",
-      "include.schema.changes": "false"
-    }
+      "include.schema.changes": "true",
+      "publication.autocreate.mode": "all_tables",
+      "slot.name": "debezium",
+      "publication.name": "dbz_publication"
   }
+}
+
   
   
 // Use below url and send this json data to the url to get the result
