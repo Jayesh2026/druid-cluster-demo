@@ -2,74 +2,71 @@
   "type": "kafka",
   "spec": {
     "dataSchema": {
-      "dataSource": "postgresql-data-source",
+      "dataSource": "postgresql-data-source",  // Data source name (matches connector name)
       "timestampSpec": {
-        "column": "timestamp",
-        "format": "iso",
-        "missingValue": "2024-01-01T00:00:00Z"
+        "column": "timestamp",                 // Timestamp field in the payload
+        "format": "iso",                       // ISO 8601 timestamp format
+        "missingValue": "2024-01-01T00:00:00Z" // Default timestamp for missing values
       },
       "dimensionsSpec": {
         "dimensions": [
-          "id",
-          "name",
-          "email",
-          "contact"
+          "id", "name", "email", "contact"     // Fields to use as dimensions
         ],
-        "useFieldDiscovery": false
+        "useFieldDiscovery": false             // Don't use field discovery for dimensions
       },
       "metricsSpec": [
         {
-          "name": "count",
+          "name": "count",                     // Metric to count rows
           "type": "count"
         }
       ]
     },
     "ioConfig": {
-      "topic": "dbserver1.public.employee",
+      "topic": "dbserver1.public.employee",    // Kafka topic to read from
       "consumerProperties": {
-        "bootstrap.servers": "kafka:9092",
-        "group.id": "druid-consumer-group"
+        "bootstrap.servers": "kafka:9092",    // Kafka broker
+        "group.id": "druid-consumer-group"     // Consumer group ID for Druid
       },
-      "taskDuration": "PT5M",
+      "taskDuration": "PT5M",                   // Task duration
       "inputFormat": {
-        "type": "json",
+        "type": "json",                        // Input format type (JSON in this case)
         "flattenSpec": {
           "fields": [
             {
-              "type": "path",
-              "name": "id",
-              "expr": "$.payload.after.id"
+              "type": "path", 
+              "name": "id", 
+              "expr": "$.payload.after.id"     // JSON path to extract the field
             },
             {
-              "type": "path",
-              "name": "name",
-              "expr": "$.payload.after.name"
+              "type": "path", 
+              "name": "name", 
+              "expr": "$.payload.after.name"   // JSON path for the 'name' field
             },
             {
-              "type": "path",
-              "name": "email",
-              "expr": "$.payload.after.email"
+              "type": "path", 
+              "name": "email", 
+              "expr": "$.payload.after.email"  // JSON path for the 'email' field
             },
             {
-              "type": "path",
-              "name": "contact",
-              "expr": "$.payload.after.contact"
+              "type": "path", 
+              "name": "contact", 
+              "expr": "$.payload.after.contact" // JSON path for the 'contact' field
             }
           ]
         },
-        "reportParseExceptions": true
+        "reportParseExceptions": true          // Report parse exceptions
       },
       "type": "kafka"
     },
     "tuningConfig": {
       "type": "kafka",
-      "maxRowsInMemory": 1000000,
-      "maxTotalRows": 10000000,
-      "logParseExceptions": true,
-      "taskCount": 4,
-      "maxNumConcurrentSubTasks": 4,
-      "maxParseExceptions": 10,
-      "maxSavedParseExceptions": 5
+      "maxRowsInMemory": 1000000,               // Max rows in memory before spilling
+      "maxTotalRows": 10000000,                 // Max total rows to process
+      "logParseExceptions": true,               // Log parse exceptions
+      "taskCount": 4,                           // Number of tasks for Kafka ingestion
+      "maxNumConcurrentSubTasks": 4,            // Max concurrent subtasks
+      "maxParseExceptions": 10,                 // Max parse exceptions per task
+      "maxSavedParseExceptions": 5             // Max saved parse exceptions
     }
   }
 }
