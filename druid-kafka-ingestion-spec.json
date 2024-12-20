@@ -1,0 +1,75 @@
+{
+  "type": "kafka",
+  "spec": {
+    "dataSchema": {
+      "dataSource": "postgresql-data-source",
+      "timestampSpec": {
+        "column": "timestamp",
+        "format": "iso",
+        "missingValue": "2024-01-01T00:00:00Z"
+      },
+      "dimensionsSpec": {
+        "dimensions": [
+          "id",
+          "name",
+          "email",
+          "contact"
+        ],
+        "useFieldDiscovery": false
+      },
+      "metricsSpec": [
+        {
+          "name": "count",
+          "type": "count"
+        }
+      ]
+    },
+    "ioConfig": {
+      "topic": "dbserver1.public.employee",
+      "consumerProperties": {
+        "bootstrap.servers": "kafka:9092",
+        "group.id": "druid-consumer-group"
+      },
+      "taskDuration": "PT5M",
+      "inputFormat": {
+        "type": "json",
+        "flattenSpec": {
+          "fields": [
+            {
+              "type": "path",
+              "name": "id",
+              "expr": "$.payload.after.id"
+            },
+            {
+              "type": "path",
+              "name": "name",
+              "expr": "$.payload.after.name"
+            },
+            {
+              "type": "path",
+              "name": "email",
+              "expr": "$.payload.after.email"
+            },
+            {
+              "type": "path",
+              "name": "contact",
+              "expr": "$.payload.after.contact"
+            }
+          ]
+        },
+        "reportParseExceptions": true
+      },
+      "type": "kafka"
+    },
+    "tuningConfig": {
+      "type": "kafka",
+      "maxRowsInMemory": 1000000,
+      "maxTotalRows": 10000000,
+      "logParseExceptions": true,
+      "taskCount": 4,
+      "maxNumConcurrentSubTasks": 4,
+      "maxParseExceptions": 10,
+      "maxSavedParseExceptions": 5
+    }
+  }
+}
