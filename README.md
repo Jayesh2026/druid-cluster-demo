@@ -304,12 +304,12 @@ flowchart TB
 
 This project uses PostgreSQL's logical replication feature, which is crucial for Change Data Capture (CDC). Here's why:
 
-1. **What is Logical Replication?**
+1. **What Is Logical Replication?**
    - Replicates data changes at a logical level (row changes)
    - Enables filtering of specific tables and operations
    - Provides structured change events
 
-2. **Why it's Important**
+2. **Why It's Important**
    - Enables real-time data capture without performance impact
    - Preserves transaction boundaries
    - Allows selective replication of specific tables
@@ -317,14 +317,32 @@ This project uses PostgreSQL's logical replication feature, which is crucial for
 
 3. **Configuration**
     - **PostgreSQL Settings**
-     
-     ```sql
-     wal_level = logical  # Enables logical decoding
-     ```
-     This is configured in our docker-compose.yml:
-     ```yaml
-     command: ["postgres", "-c", "wal_level=logical"]
-     ```
+        
+        ```sql
+        wal_level = logical  # Enables logical decoding
+        ```
+        This is configured in our `docker-compose.yml`:
+        ```yaml
+        command: ["postgres", "-c", "wal_level=logical"]
+        ```
+         Example:
+        ```yaml
+        postgres:
+          container_name: postgres
+          image: postgres:latest
+          ports:
+            - "5432:5432"
+          volumes:
+            - metadata_data:/var/lib/postgresql/data
+          environment:
+            - POSTGRES_DB=demo-druid
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=root
+          # Enable logical replication for PostgreSQL
+          command: ["postgres", "-c", "wal_level=logical"] #Logical replication is required when using tools like Debezium to stream changes from PostgreSQL to other systems (e.g., Kafka).
+          networks:
+            - druid_network
+        ```
 
     - **Replication Slot**
       - Name: "debezium"
@@ -402,7 +420,7 @@ demo-druid/
 1. Clone the repository:
    ```bash
    git clone https://github.com/Jayesh2026/druid-cluster-demo.git
-   cd demo-druid
+   cd druid-cluster-demo
    ```
 
 2. Build the Spring Boot application:
@@ -591,7 +609,8 @@ curl http://localhost:8081/druid/indexer/v1/supervisor/postgresql-data-source/st
 
 
 ## Reference
-  - Druid CLuster Document: https://druid.apache.org/docs/latest/design/
-  - Medium Document(Pushkar Joshi): https://pushkar-sre.medium.com/druid-cluster-setup-6123bb921376
+   - [Debezium Documentation](https://debezium.io/documentation)
+   - [Apache Druid Documentation](https://druid.apache.org/docs/latest/)
+   - [Apache Kafka Documentation](https://kafka.apache.org/documentation/)
 
 
