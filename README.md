@@ -473,15 +473,25 @@ demo-druid/
    - **Body**: [Check druid-ingestion-spec.json file]
 
    OR Using Druid Web Console:
+      1. Open the Druid Web Console at `localhost:8888`.
+      2. Navigate to the **Load Data** section.
+      3. Select **Stream Ingestion**.
+      4. Choose **Kafka** as the data source.
+      5. Connect your Kafka data source by providing the necessary details.
+      6. **Edit the Spec** to customize your ingestion process:
+         - Either edit the ingestion spec directly.
+         - Or paste the `druid-ingestion-spec.json` into the spec editor.
+         
+      For more details, refer to the [Medium document link] at the bottom.
 
    ```mermaid
    graph LR
-   A[localhost:8888] --> B[Load Data]
+   A["Open Druid Web Console<br> (localhost:8888)"] --> B[Load Data]
    B --> C[Stream ingestion]
    C --> D[Kafka]
    D --> E[Connect Data]
    E --> F[Edit Spec]
-   F --> G[Paste  druid-ingestion-spec.json]
+   F --> G[Paste druid-ingestion-spec.json<br> or Customize]
    ```
    
 
@@ -563,7 +573,7 @@ SELECT COUNT(*) FROM "postgresql-data-source"
 ```sql
 SELECT 
   SUBSTRING(email, POSITION('@' IN email) + 1) AS domain,
-  COUNT(*) as count
+  COUNT(*) AS "count"
 FROM "postgresql-data-source"
 GROUP BY SUBSTRING(email, POSITION('@' IN email) + 1)
 ```
@@ -612,5 +622,6 @@ curl http://localhost:8081/druid/indexer/v1/supervisor/postgresql-data-source/st
    - [Debezium Documentation](https://debezium.io/documentation)
    - [Apache Druid Documentation](https://druid.apache.org/docs/latest/)
    - [Apache Kafka Documentation](https://kafka.apache.org/documentation/)
+   - [Medium Reference for Druid cluster setup](https://pushkar-sre.medium.com/druid-cluster-setup-6123bb921376)
 
 
