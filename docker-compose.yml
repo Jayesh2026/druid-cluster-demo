@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: dockerfile
     ports:
-      - "8080:8080"
+      - "9090:9090"
     depends_on:
       - postgres
     environment:
@@ -57,32 +57,51 @@ services:
     networks:
       - druid_network
 
-  kafka-connect:
-    image: quay.io/debezium/connect:latest
-    container_name: kafka-connect
+  debezium-server:
+    image: debezium/server:2.6
+    container_name: debezium-server
     depends_on:
       - kafka
       - postgres
-    ports:
-      - "8083:8083"
+    volumes:
+      - ./debezium-config:/debezium/conf
+      - ./debezium-data:/debezium/data
     environment:
-      - BOOTSTRAP_SERVERS=kafka:9092
-      - CONFIG_STORAGE_TOPIC=connect_configs
-      - OFFSET_STORAGE_TOPIC=connect_offsets
-      - STATUS_STORAGE_TOPIC=connect_status
-      # Using JSON converter for simplicity
-      - VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - CONFIG_STORAGE_REPLICATION_FACTOR=1
+      # Source (PostgreSQL) configurations
+      - DEBEZIUM_SOURCE_CONNECTOR_CLASS=io.debezium.connector.postgresql.PostgresConnector
+      - DEBEZIUM_SOURCE_OFFSET_STORAGE_FILE_FILENAME=/debezium/data/offsets.dat
+      - DEBEZIUM_SOURCE_OFFSET_FLUSH_INTERVAL_MS=0
+      - DEBEZIUM_SOURCE_DATABASE_HOSTNAME=postgres
+      - DEBEZIUM_SOURCE_DATABASE_PORT=5432
+      - DEBEZIUM_SOURCE_DATABASE_USER=postgres
+      - DEBEZIUM_SOURCE_DATABASE_PASSWORD=root
+      - DEBEZIUM_SOURCE_DATABASE_DBNAME=demo-druid
+      - DEBEZIUM_SOURCE_DATABASE_SERVER_NAME=postgres-server
+      # Added required topic prefix
+      - DEBEZIUM_SOURCE_TOPIC_PREFIX=postgres-cdc
+      # Added schema and table configurations
+      - DEBEZIUM_SOURCE_SCHEMA_INCLUDE_LIST=public
+      - DEBEZIUM_SOURCE_TABLE_INCLUDE_LIST=public.*
+      # Added additional helpful configurations
+      - DEBEZIUM_SOURCE_PLUGIN_NAME=pgoutput
+      - DEBEZIUM_SOURCE_PUBLICATION_NAME=dbz_publication
+      # Sink (Kafka) configurations
+      - DEBEZIUM_SINK_TYPE=kafka
+      - DEBEZIUM_SINK_KAFKA_PRODUCER_BOOTSTRAP_SERVERS=kafka:9092
+      - DEBEZIUM_SINK_KAFKA_PRODUCER_KEY_SERIALIZER=org.apache.kafka.common.serialization.StringSerializer
+      - DEBEZIUM_SINK_KAFKA_PRODUCER_VALUE_SERIALIZER=org.apache.kafka.common.serialization.StringSerializer
     networks:
       - druid_network
 
-  kafdrop:
-    image: obsidiandynamics/kafdrop:latest
-    container_name: kafdrop
-    environment:
-      - KAFKA_BROKERCONNECT=kafka:9092
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
     ports:
-      - "9000:9000"  # Kafdrop UI Port
+      - 8080:8080
+    environment:
+      # - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_BOOTSTRAPSERVERS=kafka:9092
+      - DYNAMIC_CONFIG_ENABLED=true
     depends_on:
       - kafka
     networks:
