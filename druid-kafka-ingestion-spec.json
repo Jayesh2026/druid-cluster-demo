@@ -65,11 +65,7 @@
       "type": "kafka",
       "maxRowsInMemory": 1000000,
       "maxTotalRows": 10000000,
-      "logParseExceptions": true,
-      "taskCount": 4,
-      "maxNumConcurrentSubTasks": 4,
-      "maxParseExceptions": 10,
-      "maxSavedParseExceptions": 5
+      "logParseExceptions": true
     }
   }
 }
